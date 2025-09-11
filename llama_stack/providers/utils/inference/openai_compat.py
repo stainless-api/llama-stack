@@ -1417,10 +1417,9 @@ class OpenAIChatCompletionToLlamaStackMixin:
         if stream:
             return OpenAIChatCompletionToLlamaStackMixin._process_stream_response(self, model, outstanding_responses)
 
-        response = await OpenAIChatCompletionToLlamaStackMixin._process_non_stream_response(
+        return await OpenAIChatCompletionToLlamaStackMixin._process_non_stream_response(
             self, model, outstanding_responses
         )
-        return response
 
     async def _process_stream_response(
         self,
@@ -1512,11 +1511,9 @@ class OpenAIChatCompletionToLlamaStackMixin:
             )
             choices.append(choice)
 
-        usage = None
-        if total_tokens > 0:
-            usage = OpenAIChatCompletionUsage(
-                prompt_tokens=total_prompt_tokens, completion_tokens=total_completion_tokens, total_tokens=total_tokens
-            )
+        usage = OpenAIChatCompletionUsage(
+            prompt_tokens=total_prompt_tokens, completion_tokens=total_completion_tokens, total_tokens=total_tokens
+        )
 
         return OpenAIChatCompletion(
             id=f"chatcmpl-{uuid.uuid4()}",
