@@ -677,7 +677,7 @@ async def test_responses_store_list_input_items_logic():
 
     # Create mock store and response store
     mock_sql_store = AsyncMock()
-    responses_store = ResponsesStore(sql_store_config=None, policy=default_policy())
+    responses_store = ResponsesStore(None, policy=default_policy())
     responses_store.sql_store = mock_sql_store
 
     # Setup test data - multiple input items
