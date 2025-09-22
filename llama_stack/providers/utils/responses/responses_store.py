@@ -162,6 +162,9 @@ class ResponsesStore:
         :param model: The model to filter by.
         :param order: The order to sort the responses by.
         """
+        if not self.sql_store:
+            raise ValueError("Responses store is not initialized")
+
         if not order:
             order = Order.desc
 
@@ -189,6 +192,9 @@ class ResponsesStore:
         """
         Get a response object with automatic access control checking.
         """
+        if not self.sql_store:
+            raise ValueError("Responses store is not initialized")
+
         row = await self.sql_store.fetch_one(
             "openai_responses",
             where={"id": response_id},
@@ -202,6 +208,9 @@ class ResponsesStore:
         return OpenAIResponseObjectWithInput(**row["response_object"])
 
     async def delete_response_object(self, response_id: str) -> OpenAIDeleteResponseObject:
+        if not self.sql_store:
+            raise ValueError("Responses store is not initialized")
+
         row = await self.sql_store.fetch_one("openai_responses", where={"id": response_id})
         if not row:
             raise ValueError(f"Response with id {response_id} not found")
