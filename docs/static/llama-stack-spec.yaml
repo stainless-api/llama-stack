@@ -2780,6 +2780,7 @@ paths:
           $ref: '#/components/responses/DefaultError'
       tags:
         - VectorIO
+      summary: Cancels a vector store file batch.
       description: Cancels a vector store file batch.
       parameters:
         - name: batch_id
@@ -2938,6 +2939,7 @@ paths:
           $ref: '#/components/responses/DefaultError'
       tags:
         - VectorIO
+      summary: Create a vector store file batch.
       description: Create a vector store file batch.
       parameters:
         - name: vector_store_id
@@ -3412,6 +3414,8 @@ paths:
           $ref: '#/components/responses/DefaultError'
       tags:
         - VectorIO
+      summary: >-
+        Returns a list of vector store files in a batch.
       description: >-
         Returns a list of vector store files in a batch.
       parameters:
@@ -3548,6 +3552,7 @@ paths:
           $ref: '#/components/responses/DefaultError'
       tags:
         - VectorIO
+      summary: Retrieve a vector store file batch.
       description: Retrieve a vector store file batch.
       parameters:
         - name: batch_id
