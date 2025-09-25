@@ -3,24 +3,15 @@ name: Stainless SDK Builds
 run-name: Build Stainless SDKs
 
 on:
-  # Triggered by the pre-commit workflow after it successfully completes.
-  # This ensures the OpenAPI spec file is generated before attempting to build SDKs.
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: 'Pull request number'
-        required: true
-        type: string
-      pr_action:
-        description: 'Pull request action'
-        required: true
-        type: string
   pull_request:
     types:
+      - opened
+      - synchronize
+      - reopened
       - closed
 
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.pr_number || github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 env:
@@ -43,7 +34,7 @@ env:
 
 jobs:
   preview:
-    if: github.event_name == 'workflow_dispatch' && inputs.pr_action != 'closed'
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -63,6 +54,8 @@ jobs:
           oas_path: ${{ env.OAS_PATH }}
           config_path: ${{ env.CONFIG_PATH }}
           fail_on: ${{ env.FAIL_ON }}
+          make_comment: true
+          commit_message: "feat(api): preview build for PR #${{ inputs.pr_number }}"
 
   merge:
     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
