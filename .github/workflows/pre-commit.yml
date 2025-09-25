@@ -109,3 +109,24 @@ jobs:
             echo "$unstaged_files"
             exit 1
           fi
+
+      # Trigger the stainless-builds workflow after pre-commit passes.
+      # This is required because pre-commit generates the OpenAPI spec file that
+      # stainless-builds needs to build the SDKs. Using repository_dispatch allows
+      # to trigger the workflow with custom payload data.
+      - name: Trigger Stainless builds
+        if: github.event_name == 'pull_request' && success()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: 'stainless-build-trigger',
+              client_payload: {
+                pr_number: context.payload.pull_request.number,
+                pr_action: context.payload.action,
+                ref: context.payload.pull_request.head.ref,
+                sha: context.payload.pull_request.head.sha
+              }
+            })
