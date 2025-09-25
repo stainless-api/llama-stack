@@ -112,21 +112,19 @@ jobs:
 
       # Trigger the stainless-builds workflow after pre-commit passes.
       # This is required because pre-commit generates the OpenAPI spec file that
-      # stainless-builds needs to build the SDKs. Using repository_dispatch allows
-      # to trigger the workflow with custom payload data.
+      # stainless-builds needs to build the SDKs.
       - name: Trigger Stainless builds
         if: github.event_name == 'pull_request' && success()
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
-            await github.rest.repos.createDispatchEvent({
+            await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              event_type: 'stainless-build-trigger',
-              client_payload: {
-                pr_number: context.payload.pull_request.number,
-                pr_action: context.payload.action,
-                ref: context.payload.pull_request.head.ref,
-                sha: context.payload.pull_request.head.sha
+              workflow_id: 'stainless-builds.yml',
+              ref: context.payload.pull_request.head.ref,
+              inputs: {
+                pr_number: String(context.payload.pull_request.number),
+                pr_action: context.payload.action
               }
             })
