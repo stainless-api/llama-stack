@@ -1,14 +1,26 @@
-name: Build SDKs for pull request
+name: Stainless SDK Builds
+
+run-name: Build Stainless SDKs
 
 on:
-  repository_dispatch:
-    types: [stainless-build-trigger]
+  # Triggered by the pre-commit workflow after it successfully completes.
+  # This ensures the OpenAPI spec file is generated before attempting to build SDKs.
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull request number'
+        required: true
+        type: string
+      pr_action:
+        description: 'Pull request action'
+        required: true
+        type: string
   pull_request:
     types:
       - closed
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.client_payload.pr_number || github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ inputs.pr_number || github.event.pull_request.number }}
   cancel-in-progress: true
 
 env:
@@ -31,19 +43,19 @@ env:
 
 jobs:
   preview:
-    if: github.event_name == 'repository_dispatch' && github.event.client_payload.pr_action != 'closed'
+    if: github.event_name == 'workflow_dispatch' && inputs.pr_action != 'closed'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 2
 
       - name: Run preview builds
-        uses: stainless-api/upload-openapi-spec-action/preview@v1
+        uses: stainless-api/upload-openapi-spec-action/preview@b741c27bc604e5c130b92ed4056b07aee783aa04 # v1.5.4
         with:
           stainless_api_key: ${{ secrets.STAINLESS_API_KEY }}
           org: ${{ env.STAINLESS_ORG }}
@@ -60,7 +72,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 2
 
@@ -71,7 +83,7 @@ jobs:
       # against preview/${{ github.head_ref }} to complete, but assuming that
       # the preview-sdk job happens before the PR merge, it should be fine.
       - name: Run merge build
-        uses: stainless-api/upload-openapi-spec-action/merge@v1
+        uses: stainless-api/upload-openapi-spec-action/merge@b741c27bc604e5c130b92ed4056b07aee783aa04 # v1.5.4
         with:
           stainless_api_key: ${{ secrets.STAINLESS_API_KEY }}
           org: ${{ env.STAINLESS_ORG }}
